@@ -66,7 +66,7 @@ def parse_args():
     parser.add_argument(
         '--checkpoint',
         default=('work_dirs/custom/'
-                 'best_top1_acc_epoch_190.pth'),
+                 'best_top1_acc_epoch_60.pth'),
         help='skeleton model checkpoint file/url')
     parser.add_argument(
         '--det-config',
