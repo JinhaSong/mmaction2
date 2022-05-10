@@ -44,7 +44,7 @@ def gen_id(size=8):
 
 def extract_frame(video_path):
     dname = gen_id()
-    os.makedirs(dname, exist_ok=True)
+    os.makedirs(dname, exist_ok=False)
     frame_tmpl = osp.join(dname, 'img_{:05d}.jpg')
     vid = cv2.VideoCapture(video_path)
     frame_paths = []
@@ -310,8 +310,10 @@ def pose_inference(args, frame_paths, det_results):
 def ntu_pose_extraction(vid, skip_postproc=False):
     frame_paths = extract_frame(vid)
     det_results = detection_inference(args, frame_paths)
+    """
     if not skip_postproc:
         det_results = ntu_det_postproc(vid, det_results)
+    """
     pose_results = pose_inference(args, frame_paths, det_results)
     anno = dict()
     anno['keypoint'] = pose_results[..., :2]
