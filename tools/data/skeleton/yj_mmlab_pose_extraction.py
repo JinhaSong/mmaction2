@@ -18,4 +18,4 @@ files = os.listdir(dir)
 
 for file in files:
     input_vid = dir+file
-    subprocess.call("python " + "tools/data/skeleton/ntu_pose_extraction.py "+input_vid+" "+str(args.out_folder) +file.split('A')[0]+'.pkl', shell=True)
+    subprocess.call("python " + "tools/data/skeleton/ntu_pose_extraction.py "+input_vid+" "+str(args.out_folder) +file.split('.')[0]+'.pkl', shell=True)
