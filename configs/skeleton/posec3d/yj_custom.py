@@ -25,8 +25,8 @@ model = dict(
     test_cfg=dict(average_clips='prob'))
 
 dataset_type = 'PoseDataset'
-ann_file_train = '/mmaction2/data/aihub-gradu/total_pkl/train.pkl'
-ann_file_val = '/mmaction2/data/aihub-gradu/total_pkl/train.pkl'
+ann_file_train = '/mlsun/nfs_shared/cctv/Trimmed_Video_Pose_based_Action_Recognition/Aihub/SGMMLAB/train_pkl/train.pkl'
+ann_file_val = '/mlsun/nfs_shared/cctv/Trimmed_Video_Pose_based_Action_Recognition/Aihub/SGMMLAB/val_pkl/val.pkl'
 left_kp = [1, 3, 5, 7, 9, 11, 13, 15]
 right_kp = [2, 4, 6, 8, 10, 12, 14, 16]
 train_pipeline = [
@@ -109,7 +109,7 @@ optimizer = dict(
 optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
 # learning policy
 lr_config = dict(policy='CosineAnnealing', by_epoch=False, min_lr=0)
-total_epochs = 240
+total_epochs = 500
 checkpoint_config = dict(interval=10)
 workflow = [('train', 10)]
 evaluation = dict(
