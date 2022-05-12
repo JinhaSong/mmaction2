@@ -317,7 +317,10 @@ def ntu_pose_extraction(vid, skip_postproc=False):
     pose_results = pose_inference(args, frame_paths, det_results)
     anno = dict()
     anno['keypoint'] = pose_results[..., :2]
+    print("keypoint:",anno['keypoint'])
+    #print(pose_results)
     anno['keypoint_score'] = pose_results[..., 2]
+    print("key_score : ",anno['keypoint_score'])
     anno['frame_dir'] = osp.splitext(osp.basename(vid))[0]
     anno['img_shape'] = (1080, 1920)
     anno['original_shape'] = (1080, 1920)
