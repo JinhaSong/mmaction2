@@ -327,6 +327,7 @@ def ntu_pose_extraction(vid, skip_postproc=False):
     anno['total_frames'] = pose_results.shape[1]
     anno['label'] = int(osp.basename(vid).split('A')[1][:3]) - 1
     shutil.rmtree(osp.dirname(frame_paths[0]))
+    print("NTU_POSE_EXTRACTION check")
 
     return anno
 
