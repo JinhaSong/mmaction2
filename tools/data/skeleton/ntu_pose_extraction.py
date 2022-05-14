@@ -306,8 +306,27 @@ def pose_inference(args, frame_paths, det_results):
         # Align input format
         d = [dict(bbox=x) for x in list(d) if x[-1] > 0.5]
         pose = inference_top_down_pose_model(model, f, d, format='xyxy')[0]
+        #print("LINE[309]: let's see about pose : ", pose)
+        #break
+        #바로 아래는 그럼.. 꺼내진 프레임 한개당 돌아가는건가?
+        print('')
+        print("==============PER FRAME?? OR NOT?? HOW MANY TIME?==============")
+        print('')
         for j, item in enumerate(pose):
+            #여기서 item에 뭐가 들어갈래나..?
+            #print("ITEM: ",item)
+            #break
             kp[j, i] = item['keypoints']
+            print('')
+            #print("Pose appearance : \n",pose)
+            print('')
+            print("What is I, is it a frame??",i)
+            #맞네. J는 검출된 사람 박스 나타내는 인덱스였네
+            print("What is J ? ", j)
+            #print("What is item? ",item['keypoints'])
+            print("kp[j, i] : ",kp[j, i])
+
+
         prog_bar.update()
     return kp
 
@@ -323,15 +342,8 @@ def ntu_pose_extraction(vid, skip_postproc=False):
     anno = dict()
     #그냥 여기서 pose_results[..., :2]는 뭐가 어떻게 나올래나..? print 문으로 직접 찍어보자.
     anno['keypoint'] = pose_results[..., :2]
-    print("=======================================================")
-    tmp = pose_results[..., :2]
-    print("type of pose~~",type(tmp))
-    print("shape of pose~~", tmp.shape)
-    #이거 타입은 numpy.ndarray 였음. 시벌
-    print(type(tmp[0][0][0]))
-    print(tmp[0][0][0][0])
-    #print(anno['keypoint'])
-    #print(pose_results)
+    #print("anno[keypoint] shape , origin shape : ",pose_results[..., :2].shape,pose_results.shape,pose_results[..., 2].shape)
+    #print("=======================================================")
     anno['keypoint_score'] = pose_results[..., 2]
     #print("key_score : ",anno['keypoint_score'])
     anno['frame_dir'] = osp.splitext(osp.basename(vid))[0]
@@ -339,6 +351,8 @@ def ntu_pose_extraction(vid, skip_postproc=False):
     anno['original_shape'] = (1080, 1920)
     anno['total_frames'] = pose_results.shape[1]
     anno['label'] = int(osp.basename(vid).split('A')[1][:3]) - 1
+    #print("labellabel",anno['label'])
+    #print("what is vid? ", vid)
     shutil.rmtree(osp.dirname(frame_paths[0]))
     print("NTU_POSE_EXTRACTION check")
 
