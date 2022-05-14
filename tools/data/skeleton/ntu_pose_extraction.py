@@ -75,8 +75,10 @@ def detection_inference(args, frame_paths):
         results.append(result)
         prog_bar.update()
 
-    print("Type of Detection result : ",type(results))
-    print("Then, what is Detection result?", results)
+    #print("Type of Detection result : ",type(results[0]))
+    #print("Len of Detection result :  ",len(results))
+    #print("Is it a person num? :      ",max([len(x) for x in results]))
+    #print("Then, what is Detection result?", results)
     return results
 
 
