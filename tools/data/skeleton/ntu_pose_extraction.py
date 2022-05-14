@@ -74,6 +74,9 @@ def detection_inference(args, frame_paths):
         result = result[0][result[0][:, 4] >= args.det_score_thr]
         results.append(result)
         prog_bar.update()
+
+    print("Type of Detection result : ",type(results))
+    print("Then, what is Detection result?", results)
     return results
 
 
@@ -316,11 +319,19 @@ def ntu_pose_extraction(vid, skip_postproc=False):
     """
     pose_results = pose_inference(args, frame_paths, det_results)
     anno = dict()
+    #그냥 여기서 pose_results[..., :2]는 뭐가 어떻게 나올래나..? print 문으로 직접 찍어보자.
     anno['keypoint'] = pose_results[..., :2]
-    print("keypoint:",anno['keypoint'])
+    print("=======================================================")
+    tmp = pose_results[..., :2]
+    print("type of pose~~",type(tmp))
+    print("shape of pose~~", tmp.shape)
+    #이거 타입은 numpy.ndarray 였음. 시벌
+    print(type(tmp[0][0][0]))
+    print(tmp[0][0][0][0])
+    #print(anno['keypoint'])
     #print(pose_results)
     anno['keypoint_score'] = pose_results[..., 2]
-    print("key_score : ",anno['keypoint_score'])
+    #print("key_score : ",anno['keypoint_score'])
     anno['frame_dir'] = osp.splitext(osp.basename(vid))[0]
     anno['img_shape'] = (1080, 1920)
     anno['original_shape'] = (1080, 1920)
@@ -334,7 +345,7 @@ def ntu_pose_extraction(vid, skip_postproc=False):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='Generate Pose Annotation for a single NTURGB-D video')
+        description='Generate Pose Annotation for a single Abnormal video Clip')
     parser.add_argument('video', type=str, help='source video')
     parser.add_argument('output', type=str, help='output pickle name')
     parser.add_argument('--device', type=str, default='cuda:0')
