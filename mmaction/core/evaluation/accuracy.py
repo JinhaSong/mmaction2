@@ -88,6 +88,8 @@ def mean_class_accuracy(scores, labels):
 
     mean_class_acc = np.mean(
         [hit / cnt if cnt else 0.0 for cnt, hit in zip(cls_cnt, cls_hit)])
+    print("IS THIS RIGHT ONE ?? : ", [hit / cnt if cnt else 0.0 for cnt, hit in zip(cls_cnt, cls_hit)])
+
 
     return mean_class_acc
 
