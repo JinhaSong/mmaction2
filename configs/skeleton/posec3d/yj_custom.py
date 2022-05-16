@@ -25,8 +25,8 @@ model = dict(
     test_cfg=dict(average_clips='prob'))
 
 dataset_type = 'PoseDataset'
-ann_file_train = '/mlsun/nfs_shared/cctv/Trimmed_Video_Pose_based_Action_Recognition/Aihub/SGMMLAB/train_pkl/train.pkl'
-ann_file_val = '/mlsun/nfs_shared/cctv/Trimmed_Video_Pose_based_Action_Recognition/Aihub/SGMMLAB/val_pkl/val.pkl'
+ann_file_train = '/mlsun/nfs_shared/cctv/Trimmed_Video_Pose_based_Action_Recognition/Aihub/SGMMLAB/train_yolo_pkl/train.pkl'
+ann_file_val = '/mlsun/nfs_shared/cctv/Trimmed_Video_Pose_based_Action_Recognition/Aihub/SGMMLAB/val_yolo_pkl/val.pkl'
 left_kp = [1, 3, 5, 7, 9, 11, 13, 15]
 right_kp = [2, 4, 6, 8, 10, 12, 14, 16]
 train_pipeline = [
@@ -41,8 +41,8 @@ train_pipeline = [
         type='GeneratePoseTarget',
         sigma=0.6,
         use_score=True,
-        with_kp=True,
-        with_limb=False),
+        with_kp=False,
+        with_limb=True),
     dict(type='FormatShape', input_format='NCTHW'),
     dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
     dict(type='ToTensor', keys=['imgs', 'label'])
@@ -57,8 +57,8 @@ val_pipeline = [
         type='GeneratePoseTarget',
         sigma=0.6,
         use_score=True,
-        with_kp=True,
-        with_limb=False),
+        with_kp=False,
+        with_limb=True),
     dict(type='FormatShape', input_format='NCTHW'),
     dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
     dict(type='ToTensor', keys=['imgs'])
@@ -74,8 +74,8 @@ test_pipeline = [
         type='GeneratePoseTarget',
         sigma=0.6,
         use_score=True,
-        with_kp=True,
-        with_limb=False,
+        with_kp=False,
+        with_limb=True,
         double=True,
         left_kp=left_kp,
         right_kp=right_kp),
@@ -109,7 +109,7 @@ optimizer = dict(
 optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
 # learning policy
 lr_config = dict(policy='CosineAnnealing', by_epoch=False, min_lr=0)
-total_epochs = 500
+total_epochs = 200
 checkpoint_config = dict(interval=10)
 workflow = [('train', 10)]
 evaluation = dict(

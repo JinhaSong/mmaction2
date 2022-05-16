@@ -311,6 +311,7 @@ def pose_inference(args, frame_paths, det_results):
         #바로 아래는 그럼.. 꺼내진 프레임 한개당 돌아가는건가?
         print('')
         print("==============PER FRAME?? OR NOT?? HOW MANY TIME?==============")
+        print("#######################I VALUE",i)
         print('')
         for j, item in enumerate(pose):
             #여기서 item에 뭐가 들어갈래나..?
@@ -323,8 +324,14 @@ def pose_inference(args, frame_paths, det_results):
             print("What is I, is it a frame??",i)
             #맞네. J는 검출된 사람 박스 나타내는 인덱스였네
             print("What is J ? ", j)
-            #print("What is item? ",item['keypoints'])
-            print("kp[j, i] : ",kp[j, i])
+            print("What is item? ",item['keypoints'])
+            print("What is item.type? ", type(item['keypoints']))
+            print("kp[j, i].shape : ",kp[j, i].shape)
+            print("type(kp[j, i][0]", kp[j, i][0])
+            print("type(kp[j, i][0].type : ",type(kp[j, i][0]))
+            print("type(kp[j, i][0][0] : ", kp[j, i][0][0])
+            print("type(kp[j, i][0][0].type : ", type(kp[j, i][0][0]))
+            print("type(kp[j, i][0].shape", kp[j, i][0].shape)
 
 
         prog_bar.update()
