@@ -466,6 +466,7 @@ class GeneratePoseTarget:
         """
 
         heatmap = np.zeros([img_h, img_w], dtype=np.float32)
+        #print("G\nE\nN\nE\nR\nA\nT\nI\nN\nG\n_\nA\n_\nL\nI\nM\nB\n_HEATMAP")
 
         for start, end, start_value, end_value in zip(starts, ends,
                                                       start_values,
@@ -548,9 +549,11 @@ class GeneratePoseTarget:
         heatmaps = []
         if self.with_kp:
             num_kp = kps.shape[1]
+
             for i in range(num_kp):
                 heatmap = self.generate_a_heatmap(img_h, img_w, kps[:, i],
                                                   sigma, max_values[:, i])
+                #TODO-여기서 일단 저 heatmap 을 시각화 이미지로 만들어서 저장해보자.
                 heatmaps.append(heatmap)
 
         if self.with_limb:

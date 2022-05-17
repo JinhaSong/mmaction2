@@ -130,6 +130,7 @@ def vis_heatmaps(heatmaps, channel=-1, ratio=8):
     # if channel is -1, draw all keypoints / limbs on the same map
     import matplotlib.cm as cm
     h, w, _ = heatmaps[0].shape
+    print("Type of heatmaps : ", type(heatmaps))
     newh, neww = int(h * ratio), int(w * ratio)
 
     if channel == -1:
