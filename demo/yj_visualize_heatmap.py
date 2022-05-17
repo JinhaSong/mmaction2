@@ -137,6 +137,7 @@ def vis_heatmaps(heatmaps, channel=-1, ratio=8):
         heatmaps = [np.max(x, axis=-1) for x in heatmaps]
     #cmap = cm.viridis
     cmap = cm.plasma
+    print("yj_visualize_heatmap :: heatmaps",heatmaps)
     heatmaps = [(cmap(x)[..., :3] * 255).astype(np.uint8) for x in heatmaps]
     heatmaps = [cv2.resize(x, (neww, newh)) for x in heatmaps]
     return heatmaps

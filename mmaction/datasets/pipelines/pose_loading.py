@@ -3,6 +3,7 @@ import copy as cp
 import pickle
 from PIL import Image
 import uuid
+import matplotlib.cm as cm
 
 import numpy as np
 from mmcv.fileio import FileClient
@@ -555,28 +556,6 @@ class GeneratePoseTarget:
             for i in range(num_kp):
                 heatmap = self.generate_a_heatmap(img_h, img_w, kps[:, i],
                                                   sigma, max_values[:, i])
-                #TODO-여기서 일단 저 heatmap 을 시각화 이미지로 만들어서 저장해보자.
-                import matplotlib.cm as cm
-                print("[560]Generate heamap Image whole body parts")
-                im = heatmap
-                print("Type of heatmap :",type(heatmap))
-                #cmap = cm.viridis
-                #im = [(cmap(x)[..., :3] * 255).astype(np.uint8) for x in heatmap]
-                c_im = Image.fromarray(np.uint8(cm.viridis(im)*255))
-                #print("Type of im :",type(c_im))
-                #im = im.astype(np.uint8)
-                #im = Image.fromarray(im)
-                c_im = c_im.convert('RGB')
-                filename = uuid.uuid4()
-                c_im.save("/mmaction2/heatmapTestfolder/" + str(filename) + ".jpg")
-
-
-                #cmap = cm.viridis
-                #im = [(cmap(x)[..., :3] * 255).astype(np.uint8) for x in heatmap]
-                #im = Image.fromarray(im)
-                #im = im.convert('RGB')
-                #filename = uuid.uuid4()
-                #im.save("/mmaction2/heatmapTestfolder/"+str(filename)+".jpg")
 
                 heatmaps.append(heatmap)
 
@@ -593,6 +572,20 @@ class GeneratePoseTarget:
                                                        start_values,
                                                        end_values)
                 heatmaps.append(heatmap)
+
+        #print("Shape of heatmap : ",heatmap.shape)
+        #print("Shape of heatmaps!!! : ",np.stack(heatmaps,axis=-1).shape)
+        im = np.stack(heatmaps, axis = -1)
+        yj_heatmaps = [np.max(x, axis=-1) for x in im]
+        test_heat = np.array(yj_heatmaps)
+        #print("Shape of yj_heatmaps[0] : ",yj_heatmaps[0].shape)
+        #print("Shape of yj_heatmaps[1] : ",yj_heatmaps[1].shape)
+        #print("len of yj_heatmaps@@ : ", len(yj_heatmaps))
+        #print("yj_heatmaps:",yj_heatmaps)
+        c_im = Image.fromarray(np.uint8(cm.viridis(test_heat)[..., :3] * 255))
+        c_im = c_im.convert('RGB')
+        filename = uuid.uuid4()
+        c_im.save("/mmaction2/heatmapTestfolder/" + str(filename) + ".jpg")
 
         return np.stack(heatmaps, axis=-1)
 
