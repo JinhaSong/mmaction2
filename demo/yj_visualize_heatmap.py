@@ -12,6 +12,7 @@ from mmpose.models import TopDown
 from mmcv import load, dump
 import uuid
 from PIL import Image
+
 # We assume the annotation is already prepared
 gym_train_ann_file = '/mmaction2/data/aihub-gradu/total_pkl/train.pkl'
 gym_val_ann_file = '/mmaction2/data/aihub-gradu/total_pkl/train.pkl'
@@ -130,22 +131,64 @@ def vis_heatmaps(heatmaps, channel=-1, ratio=8):
     # if channel is -1, draw all keypoints / limbs on the same map
     import matplotlib.cm as cm
     h, w, _ = heatmaps[0].shape
-    print("Type of heatmaps : ", type(heatmaps))
+    # print("Type of heatmaps : ", type(heatmaps))
     newh, neww = int(h * ratio), int(w * ratio)
 
     if channel == -1:
         heatmaps = [np.max(x, axis=-1) for x in heatmaps]
-    #cmap = cm.viridis
+    # cmap = cm.viridis
     cmap = cm.plasma
-    print("yj_visualize_heatmap :: heatmaps",heatmaps)
+    # print("yj_visualize_heatmap :: heatmaps",heatmaps)
     heatmaps = [(cmap(x)[..., :3] * 255).astype(np.uint8) for x in heatmaps]
     heatmaps = [cv2.resize(x, (neww, newh)) for x in heatmaps]
     return heatmaps
 
 
+from matplotlib import cm
+
+
+def generate_visual_heatmap(annotation):
+    keypoints, scores = annotation['keypoint'], annotation['keypoint_score']
+
+    max_person, frame_len, *_ = keypoints.shape
+    cmap_pool = [cm.viridis, cm.plasma, cm.inferno, cm.magma, cm.GnBu]
+
+
+    for person in range(max_person):
+        cmap = cmap_pool[person]
+        p_anno = dict()
+        p_anno.update(annotation)
+        p_kp = keypoints[person:person + 1, ...]
+        p_score = scores[person:person + 1, ...]
+        p_anno['keypoint'] = p_kp
+        p_anno['keypoint_score'] = p_score
+
+        keypoint_heatmap = get_pseudo_heatmap(p_anno)
+        keypoint_mapvis = vis_heatmaps_ms(keypoint_heatmap, c_map=cmap)
+        vid = mpy.ImageSequenceClip(keypoint_mapvis, fps=24)
+
+        vid.write_videofile(f'/mmaction2/heatmapTestfolder/test_person_{person + 1}.mp4')
+
+
+def vis_heatmaps_ms(heatmaps, c_map,channel=-1, ratio=8, ):
+    # if channel is -1, draw all keypoints / limbs on the same map
+    h, w, _ = heatmaps[0].shape
+    # print("Type of heatmaps : ", type(heatmaps))
+    newh, neww = int(h * ratio), int(w * ratio)
+
+    if channel == -1:
+        heatmaps = [np.max(x, axis=-1) for x in heatmaps]
+    # cmap = cm.viridis
+    # cmap = cm.plasma
+    # print("yj_visualize_heatmap :: heatmaps",heatmaps)
+    heatmaps = [(c_map(x)[..., :3] * 255).astype(np.uint8) for x in heatmaps]
+    heatmaps = [cv2.resize(x, (neww, newh)) for x in heatmaps]
+    return heatmaps
+
+
 # Load Assault annotations
-gym_categories = ['normal','assault','swoon']
-print(gym_categories)
+gym_categories = ['normal', 'assault', 'swoon']
+# print(gym_categories)
 gym_annos = load(gym_train_ann_file) + load(gym_val_ann_file)
 
 gym_root = '/mmaction2/gym_samples/'
@@ -157,10 +200,17 @@ frame_dir = vid.split('.')[0]
 vid_path = osp.join(gym_root, vid)
 anno = [x for x in gym_annos if x['frame_dir'] == frame_dir][0]
 
-#Visualize Skeleton
+# Visualize Skeleton
 vis_frames = vis_skeleton(vid_path, anno, gym_categories[anno['label']])
 vid = mpy.ImageSequenceClip(vis_frames, fps=24)
-#vid.ipython_display()
+# vid.ipython_display()
+
+print(anno.keys())
+print(anno['keypoint'].shape)
+print(anno['keypoint_score'].shape)
+print()
+h, w = anno['img_shape']
+generate_visual_heatmap(anno)
 
 keypoint_heatmap = get_pseudo_heatmap(anno)
 keypoint_mapvis = vis_heatmaps(keypoint_heatmap)

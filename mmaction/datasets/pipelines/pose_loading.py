@@ -186,7 +186,7 @@ class PoseDecode:
         if 'keypoint_score' in results:
             kpscore = results['keypoint_score']
             results['keypoint_score'] = kpscore[:,
-                                                frame_inds].astype(np.float32)
+                                        frame_inds].astype(np.float32)
 
         if 'keypoint' in results:
             results['keypoint'] = results['keypoint'][:, frame_inds].astype(
@@ -325,9 +325,9 @@ class LoadKineticsPose:
                 val = new_kpscore[:np_frame, i]
 
                 val = (
-                    np.sum(val[:, kpgrp['face']], 1) * weight['face'] +
-                    np.sum(val[:, kpgrp['torso']], 1) * weight['torso'] +
-                    np.sum(val[:, kpgrp['limb']], 1) * weight['limb'])
+                        np.sum(val[:, kpgrp['face']], 1) * weight['face'] +
+                        np.sum(val[:, kpgrp['torso']], 1) * weight['torso'] +
+                        np.sum(val[:, kpgrp['limb']], 1) * weight['limb'])
                 inds = sorted(range(np_frame), key=lambda x: -val[x])
                 new_kpscore[:np_frame, i] = new_kpscore[inds, i]
                 new_kp[:np_frame, i] = new_kp[inds, i]
@@ -439,11 +439,9 @@ class GeneratePoseTarget:
                 continue
             y = y[:, None]
 
-            patch = np.exp(-((x - mu_x)**2 + (y - mu_y)**2) / 2 / sigma**2)
+            patch = np.exp(-((x - mu_x) ** 2 + (y - mu_y) ** 2) / 2 / sigma ** 2)
             patch = patch * max_value
-            heatmap[st_y:ed_y,
-                    st_x:ed_x] = np.maximum(heatmap[st_y:ed_y, st_x:ed_x],
-                                            patch)
+            heatmap[st_y:ed_y, st_x:ed_x] = np.maximum(heatmap[st_y:ed_y, st_x:ed_x], patch)
 
         return heatmap
 
@@ -469,7 +467,7 @@ class GeneratePoseTarget:
         """
 
         heatmap = np.zeros([img_h, img_w], dtype=np.float32)
-        #print("G\nE\nN\nE\nR\nA\nT\nI\nN\nG\n_\nA\n_\nL\nI\nM\nB\n_HEATMAP")
+        # print("G\nE\nN\nE\nR\nA\nT\nI\nN\nG\n_\nA\n_\nL\nI\nM\nB\n_HEATMAP")
 
         for start, end, start_value, end_value in zip(starts, ends,
                                                       start_values,
@@ -497,13 +495,13 @@ class GeneratePoseTarget:
             y_0 = np.zeros_like(y)
 
             # distance to start keypoints
-            d2_start = ((x - start[0])**2 + (y - start[1])**2)
+            d2_start = ((x - start[0]) ** 2 + (y - start[1]) ** 2)
 
             # distance to end keypoints
-            d2_end = ((x - end[0])**2 + (y - end[1])**2)
+            d2_end = ((x - end[0]) ** 2 + (y - end[1]) ** 2)
 
             # the distance between start and end keypoints.
-            d2_ab = ((start[0] - end[0])**2 + (start[1] - end[1])**2)
+            d2_ab = ((start[0] - end[0]) ** 2 + (start[1] - end[1]) ** 2)
 
             if d2_ab < 1:
                 full_map = self.generate_a_heatmap(img_h, img_w, [start],
@@ -519,14 +517,14 @@ class GeneratePoseTarget:
 
             position = np.stack([x + y_0, y + x_0], axis=-1)
             projection = start + np.stack([coeff, coeff], axis=-1) * (
-                end - start)
+                    end - start)
             d2_line = position - projection
-            d2_line = d2_line[:, :, 0]**2 + d2_line[:, :, 1]**2
+            d2_line = d2_line[:, :, 0] ** 2 + d2_line[:, :, 1] ** 2
             d2_seg = (
-                a_dominate * d2_start + b_dominate * d2_end +
-                seg_dominate * d2_line)
+                    a_dominate * d2_start + b_dominate * d2_end +
+                    seg_dominate * d2_line)
 
-            patch = np.exp(-d2_seg / 2. / sigma**2)
+            patch = np.exp(-d2_seg / 2. / sigma ** 2)
             patch = patch * value_coeff
 
             heatmap[min_y:max_y, min_x:max_x] = np.maximum(
@@ -552,6 +550,7 @@ class GeneratePoseTarget:
         heatmaps = []
         if self.with_kp:
             num_kp = kps.shape[1]
+            # 여기서 키포인트 개수 체크해보고 키포인트가 17개였나 그거 이상으로 찍히게 되는 경우에 대해서 break 걸어보자.
 
             for i in range(num_kp):
                 heatmap = self.generate_a_heatmap(img_h, img_w, kps[:, i],
@@ -573,19 +572,13 @@ class GeneratePoseTarget:
                                                        end_values)
                 heatmaps.append(heatmap)
 
-        #print("Shape of heatmap : ",heatmap.shape)
-        #print("Shape of heatmaps!!! : ",np.stack(heatmaps,axis=-1).shape)
-        im = np.stack(heatmaps, axis = -1)
-        yj_heatmaps = [np.max(x, axis=-1) for x in im]
-        test_heat = np.array(yj_heatmaps)
-        #print("Shape of yj_heatmaps[0] : ",yj_heatmaps[0].shape)
-        #print("Shape of yj_heatmaps[1] : ",yj_heatmaps[1].shape)
-        #print("len of yj_heatmaps@@ : ", len(yj_heatmaps))
-        #print("yj_heatmaps:",yj_heatmaps)
-        c_im = Image.fromarray(np.uint8(cm.viridis(test_heat)[..., :3] * 255))
-        c_im = c_im.convert('RGB')
-        filename = uuid.uuid4()
-        c_im.save("/mmaction2/heatmapTestfolder/" + str(filename) + ".jpg")
+        # im = np.stack(heatmaps, axis = -1)
+        # yj_heatmaps = [np.max(x, axis=-1) for x in im]
+        # test_heat = np.array(yj_heatmaps)
+        # c_im = Image.fromarray(np.uint8(cm.plasma(test_heat)[..., :3] * 255))
+        # c_im = c_im.convert('RGB')
+        # filename = uuid.uuid4()
+        # c_im.save("/mmaction2/heatmapTestfolder/" + str(filename) + ".jpg")
 
         return np.stack(heatmaps, axis=-1)
 
@@ -612,6 +605,7 @@ class GeneratePoseTarget:
 
         imgs = []
         for i in range(num_frame):
+
             sigma = self.sigma
             kps = all_kps[:, i]
             kpscores = all_kpscores[:, i]
@@ -621,7 +615,15 @@ class GeneratePoseTarget:
                 max_values = kpscores
 
             hmap = self.generate_heatmap(img_h, img_w, kps, sigma, max_values)
+
             imgs.append(hmap)
+            ###################################################
+            # yj_heatmaps = [np.max(x, axis=-1) for x in hmap]
+            # test_heat = np.array(yj_heatmaps)
+            # c_im = Image.fromarray(np.uint8(cm.plasma(test_heat)[..., :3] * 255))
+            # c_im = c_im.convert('RGB')
+            # filename = uuid.uuid4()
+            # c_im.save("/mmaction2/heatmapTestfolder/" + str(filename) + ".jpg")
 
         return imgs
 
@@ -668,7 +670,6 @@ class PaddingWithLoop:
     """
 
     def __init__(self, clip_len, num_clips=1):
-
         self.clip_len = clip_len
         self.num_clips = num_clips
 
