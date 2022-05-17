@@ -1,6 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy as cp
 import pickle
+from PIL import Image
+import uuid
 
 import numpy as np
 from mmcv.fileio import FileClient
@@ -554,6 +556,28 @@ class GeneratePoseTarget:
                 heatmap = self.generate_a_heatmap(img_h, img_w, kps[:, i],
                                                   sigma, max_values[:, i])
                 #TODO-여기서 일단 저 heatmap 을 시각화 이미지로 만들어서 저장해보자.
+                import matplotlib.cm as cm
+                print("[560]Generate heamap Image whole body parts")
+                im = heatmap
+                print("Type of heatmap :",type(heatmap))
+                #cmap = cm.viridis
+                #im = [(cmap(x)[..., :3] * 255).astype(np.uint8) for x in heatmap]
+                c_im = Image.fromarray(np.uint8(cm.viridis(im)*255))
+                #print("Type of im :",type(c_im))
+                #im = im.astype(np.uint8)
+                #im = Image.fromarray(im)
+                c_im = c_im.convert('RGB')
+                filename = uuid.uuid4()
+                c_im.save("/mmaction2/heatmapTestfolder/" + str(filename) + ".jpg")
+
+
+                #cmap = cm.viridis
+                #im = [(cmap(x)[..., :3] * 255).astype(np.uint8) for x in heatmap]
+                #im = Image.fromarray(im)
+                #im = im.convert('RGB')
+                #filename = uuid.uuid4()
+                #im.save("/mmaction2/heatmapTestfolder/"+str(filename)+".jpg")
+
                 heatmaps.append(heatmap)
 
         if self.with_limb:
