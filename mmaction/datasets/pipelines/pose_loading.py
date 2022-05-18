@@ -619,14 +619,29 @@ class GeneratePoseTarget:
             max_values = np.ones(kpscores.shape, dtype=np.float32)
             if self.use_score:
                 max_values = kpscores
-            #이미 num_frame이 16개만 샘플링되서 다 뽑혀서 오는건가??
+            #이미 num_frame이 16개만 샘플링되서 다 뽑혀서 오는건가?? ㅇㅇㅇㅇ
             hmap = self.generate_heatmap(img_h, img_w, kps, sigma, max_values)
-            print("What is type of hmap :", type(hmap))
-            print("What is shape of hmap? ",hmap.shape)
-            print("Check i value in pose_loading",i)
-            
+            if (i+1)%4 == 1:
+                hmap_0 = self.generate_heatmap(img_h, img_w, kps, sigma, max_values)
+            if (i+1)%4 == 2:
+                hmap_1 = self.generate_heatmap(img_h, img_w, kps, sigma, max_values)
+            if (i+1)%4 == 3:
+                hmap_2 = self.generate_heatmap(img_h, img_w, kps,sigma, max_values)
+            if (i+1)%4 == 0:
+                hmap_3 = self.generate_heatmap(img_h, img_w, kps, sigma, max_values)
+                yj_01 = np.hstack([hmap_0, hmap_1])
+                yj_02 = np.hstack([hmap_2, hmap_3])
+                yj_result=np.vstack([yj_01, yj_02])
+                print("Shape of hmap_0 :",hmap_0.shape)
+                print("Shape of hmap_1 :", hmap_1.shape)
+                print("Shape of yj_01 : ", yj_01.shape)
+                print("Shape of yj_result : ",yj_result.shape)
+                print("Shape of Original hmap :", hmap.shape)
+                # exit()
+                imgs.append(yj_result)
 
-            imgs.append(hmap)
+
+            # imgs.append(hmap)
             ###################################################
             # yj_heatmaps = [np.max(x, axis=-1) for x in hmap]
             # test_heat = np.array(yj_heatmaps)

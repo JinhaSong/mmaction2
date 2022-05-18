@@ -287,8 +287,12 @@ class FormatShape:
 
         if self.input_format == 'NCTHW':
             num_clips = results['num_clips']
-            clip_len = results['clip_len']
-
+            # clip_len = results['clip_len']
+            clip_len = 8
+            print("formatting.py Num_clips: ",num_clips)
+            print("formatting.py Clip_len: ",clip_len)
+            print("formatting.py imgs.shape[1:] ", imgs.shape[1:])
+            print("formatting.py imgs.shape", imgs.shape)
             imgs = imgs.reshape((-1, num_clips, clip_len) + imgs.shape[1:])
             # N_crops x N_clips x L x H x W x C
             imgs = np.transpose(imgs, (0, 1, 5, 2, 3, 4))
