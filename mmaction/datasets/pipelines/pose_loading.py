@@ -40,6 +40,8 @@ class UniformSampleFrames:
         self.num_clips = num_clips
         self.test_mode = test_mode
         self.seed = seed
+        # print("[43]UniformSampleframes in pose_loading.py!!!")
+        # exit()
 
     def _get_train_clips(self, num_frames, clip_len):
         """Uniformly sample indices for training clips.
@@ -68,6 +70,9 @@ class UniformSampleFrames:
             bst = bids[:clip_len]
             offset = np.random.randint(bsize)
             inds = bst + offset
+        # print("_get_train_clips in pose_loading")
+        # print("What is inds??? ",inds)
+        # exit()
         return inds
 
     def _get_test_clips(self, num_frames, clip_len):
@@ -582,6 +587,63 @@ class GeneratePoseTarget:
 
         return np.stack(heatmaps, axis=-1)
 
+    def gen_an_aug_yj(self, results):
+        """Generate pseudo heatmaps for all frames.
+
+                Args:
+                    results (dict): The dictionary that contains all info of a sample.
+
+                Returns:
+                    list[np.ndarray]: The generated pseudo heatmaps.
+        """
+
+        all_kps = results['keypoint']
+        kp_shape = all_kps.shape
+
+        if 'keypoint_score' in results:
+            all_kpscores = results['keypoint_score']
+        else:
+            all_kpscores = np.ones(kp_shape[:-1], dtype=np.float32)
+
+        img_h, img_w = results['img_shape']
+        num_frame = kp_shape[1]
+        # 젤 첨에 생성되는 사이즈 종류별로 늘리고 아래꺼에서 반복문 도는 횟수 제한 걸어서 해보면 될거 같은데? 모델 input으로 받는 부분이 분명
+        # 있을거란 말이지 그 부분도 어떻게 고치나 코드를 쳐가면서 고쳐봐야할듯?!
+        imgs = []
+        for i in range(num_frame):
+
+            sigma = self.sigma
+            kps = all_kps[:, i]
+            kpscores = all_kpscores[:, i]
+
+            max_values = np.ones(kpscores.shape, dtype=np.float32)
+            if self.use_score:
+                max_values = kpscores
+            #이미 num_frame이 16개만 샘플링되서 다 뽑혀서 오는건가??
+            hmap = self.generate_heatmap(img_h, img_w, kps, sigma, max_values)
+            print("What is type of hmap :", type(hmap))
+            print("What is shape of hmap? ",hmap.shape)
+            print("Check i value in pose_loading",i)
+            
+
+            imgs.append(hmap)
+            ###################################################
+            # yj_heatmaps = [np.max(x, axis=-1) for x in hmap]
+            # test_heat = np.array(yj_heatmaps)
+            # c_im = Image.fromarray(np.uint8(cm.plasma(test_heat)[..., :3] * 255))
+            # c_im = c_im.convert('RGB')
+            # filename = uuid.uuid4()
+            # c_im.save("/mmaction2/heatmapTestfolder/" + str(filename) + ".jpg")
+        # exit()
+        # print("Gen an aug in pose_loading.py")
+        # print("What is type of imgs?",type(imgs))
+        # print("What is len of imgs?",len(imgs))
+        # print("What is imgs[0]?",imgs[0])
+        # print("What is type of imgs[0]",type(imgs[0]))
+        # exit()
+
+        return imgs
+
     def gen_an_aug(self, results):
         """Generate pseudo heatmaps for all frames.
 
@@ -602,7 +664,8 @@ class GeneratePoseTarget:
 
         img_h, img_w = results['img_shape']
         num_frame = kp_shape[1]
-
+        #젤 첨에 생성되는 사이즈 종류별로 늘리고 아래꺼에서 반복문 도는 횟수 제한 걸어서 해보면 될거 같은데? 모델 input으로 받는 부분이 분명
+        #있을거란 말이지 그 부분도 어떻게 고치나 코드를 쳐가면서 고쳐봐야할듯?!
         imgs = []
         for i in range(num_frame):
 
@@ -624,20 +687,27 @@ class GeneratePoseTarget:
             # c_im = c_im.convert('RGB')
             # filename = uuid.uuid4()
             # c_im.save("/mmaction2/heatmapTestfolder/" + str(filename) + ".jpg")
+        # exit()
+        # print("Gen an aug in pose_loading.py")
+        # print("What is type of imgs?",type(imgs))
+        # print("What is len of imgs?",len(imgs))
+        # print("What is imgs[0]?",imgs[0])
+        # print("What is type of imgs[0]",type(imgs[0]))
+        #exit()
 
         return imgs
 
     def __call__(self, results):
         if not self.double:
-            results['imgs'] = np.stack(self.gen_an_aug(results))
+            results['imgs'] = np.stack(self.gen_an_aug_yj(results))
         else:
             results_ = cp.deepcopy(results)
             flip = Flip(
                 flip_ratio=1, left_kp=self.left_kp, right_kp=self.right_kp)
             results_ = flip(results_)
             results['imgs'] = np.concatenate(
-                [self.gen_an_aug(results),
-                 self.gen_an_aug(results_)])
+                [self.gen_an_aug_yj(results),
+                 self.gen_an_aug_yj(results_)])
         return results
 
     def __repr__(self):
