@@ -291,6 +291,7 @@ class FormatShape:
 
             #32 Frame_Extraction & 4 clip
             clip_len = 8
+
             # print("formatting.py Num_clips: ",num_clips)
             # print("formatting.py Clip_len: ",clip_len)
             # print("formatting.py imgs.shape[1:] ", imgs.shape[1:])
