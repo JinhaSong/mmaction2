@@ -330,12 +330,12 @@ class ResNet(nn.Module):
         101: (Bottleneck, (3, 4, 23, 3)),
         152: (Bottleneck, (3, 8, 36, 3))
     }
-
+#hereiadd
     def __init__(self,
                  depth,
                  pretrained=None,
                  torchvision_pretrain=True,
-                 in_channels=3,
+                 in_channels=4,
                  num_stages=4,
                  out_indices=(3, ),
                  strides=(1, 2, 2, 2),

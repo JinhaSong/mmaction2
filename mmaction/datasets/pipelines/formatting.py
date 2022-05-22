@@ -287,20 +287,26 @@ class FormatShape:
 
         if self.input_format == 'NCTHW':
             num_clips = results['num_clips']
-            # clip_len = results['clip_len']
+            # If wanna Stitching juseok churi araetjul
+            clip_len = results['clip_len']
 
             #32 Frame_Extraction & 4 clip
-            clip_len = 8
+            #clip_len = 8
 
             # print("formatting.py Num_clips: ",num_clips)
             # print("formatting.py Clip_len: ",clip_len)
             # print("formatting.py imgs.shape[1:] ", imgs.shape[1:])
             # print("formatting.py imgs.shape", imgs.shape)
-            imgs = imgs.reshape((-1, num_clips, clip_len) + imgs.shape[1:])
+            imgs = imgs.reshape((-1, num_clips, 4) + imgs.shape[1:])
+            #origin
+            # imgs = imgs.reshape((-1, num_clips, clip_len) + imgs.shape[1:])
+
             # N_crops x N_clips x L x H x W x C
             imgs = np.transpose(imgs, (0, 1, 5, 2, 3, 4))
             # N_crops x N_clips x C x L x H x W
             imgs = imgs.reshape((-1, ) + imgs.shape[2:])
+            # print("FORMATTING.py imgs.shape After Transpose",imgs.shape)
+
             # M' x C x L x H x W
             # M' = N_crops x N_clips
         elif self.input_format == 'NCHW':
@@ -332,9 +338,13 @@ class FormatShape:
         if self.collapse:
             assert imgs.shape[0] == 1
             imgs = imgs.squeeze(0)
+        # imgs = np.squeeze(imgs)
+        #hereiadd
+        imgs = imgs.reshape(*imgs.shape[1:])
 
         results['imgs'] = imgs
         results['input_shape'] = imgs.shape
+        # print("Final input shape? ",imgs.shape)
         return results
 
     def __repr__(self):

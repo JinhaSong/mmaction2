@@ -620,6 +620,7 @@ class GeneratePoseTarget:
             if self.use_score:
                 max_values = kpscores
             #이미 num_frame이 16개만 샘플링되서 다 뽑혀서 오는건가?? ㅇㅇㅇㅇ
+            #Make these function and make it work!!!
             hmap = self.generate_heatmap(img_h, img_w, kps, sigma, max_values)
             if (i+1)%4 == 1:
                 hmap_0 = self.generate_heatmap(img_h, img_w, kps, sigma, max_values)
@@ -659,6 +660,74 @@ class GeneratePoseTarget:
 
         return imgs
 
+    def gen_an_aug_yj_2d(self, results):
+        """Generate pseudo heatmaps for all frames.
+
+                Args:
+                    results (dict): The dictionary that contains all info of a sample.
+
+                Returns:
+                    list[np.ndarray]: The generated pseudo heatmaps.
+        """
+
+        all_kps = results['keypoint']
+        kp_shape = all_kps.shape
+
+        if 'keypoint_score' in results:
+            all_kpscores = results['keypoint_score']
+        else:
+            all_kpscores = np.ones(kp_shape[:-1], dtype=np.float32)
+
+        img_h, img_w = results['img_shape']
+        num_frame = kp_shape[1]
+        # 젤 첨에 생성되는 사이즈 종류별로 늘리고 아래꺼에서 반복문 도는 횟수 제한 걸어서 해보면 될거 같은데? 모델 input으로 받는 부분이 분명
+        # 있을거란 말이지 그 부분도 어떻게 고치나 코드를 쳐가면서 고쳐봐야할듯?!
+        imgs = []
+        for i in range(num_frame):
+
+            sigma = self.sigma
+            kps = all_kps[:, i]
+            kpscores = all_kpscores[:, i]
+
+            max_values = np.ones(kpscores.shape, dtype=np.float32)
+            if self.use_score:
+                max_values = kpscores
+            #이미 num_frame이 16개만 샘플링되서 다 뽑혀서 오는건가?? ㅇㅇㅇㅇ
+            #Make these function and make it work!!!
+            hmap = self.generate_heatmap(img_h, img_w, kps, sigma, max_values)
+            if (i+1)%2 == 1:
+                hmap_0 = self.generate_heatmap(img_h, img_w, kps, sigma, max_values)
+            if (i+1)%2 == 0:
+                hmap_3 = self.generate_heatmap(img_h, img_w, kps, sigma, max_values)
+                yj_01 = np.hstack([hmap_0, hmap_3])
+                #yj_02 = np.hstack([hmap_2, hmap_3])
+                #yj_result=np.vstack([yj_01, yj_02])
+                # print("Shape of hmap_0 :",hmap_0.shape)
+                # print("Shape of hmap_1 :", hmap_1.shape)
+                # print("Shape of yj_01 : ", yj_01.shape)
+                # print("Shape of yj_result : ",yj_result.shape)
+                # print("Shape of Original hmap :", hmap.shape)
+                # exit()
+            imgs.append(hmap)
+
+
+            # imgs.append(hmap)
+            ###################################################
+            # yj_heatmaps = [np.max(x, axis=-1) for x in hmap]
+            # test_heat = np.array(yj_heatmaps)
+            # c_im = Image.fromarray(np.uint8(cm.plasma(test_heat)[..., :3] * 255))
+            # c_im = c_im.convert('RGB')
+            # filename = uuid.uuid4()
+            # c_im.save("/mmaction2/heatmapTestfolder/" + str(filename) + ".jpg")
+        # exit()
+        # print("Gen an aug in pose_loading.py")
+        # print("What is type of imgs?",type(imgs))
+        # print("What is len of imgs?",len(imgs))
+        # print("What is imgs[0]?",imgs[0])
+        # print("What is type of imgs[0]",type(imgs[0]))
+        # exit()
+
+        return imgs
     def gen_an_aug(self, results):
         """Generate pseudo heatmaps for all frames.
 

@@ -1,3 +1,5 @@
-normal
-assault
-swoon
+Assault_Punch
+Assault_Kick
+Normal_Standing
+Normal_Walking
+Swoon_Fall

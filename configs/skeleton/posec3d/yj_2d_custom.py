@@ -1,26 +1,18 @@
 model = dict(
-    type='Recognizer3D',
+    type='Recognizer2D',
     backbone=dict(
-        type='ResNet3dSlowOnly',
+        type='ResNet',
         depth=50,
-        pretrained=None,
-        in_channels=17,
-        base_channels=32,
-        num_stages=3,
-        out_indices=(2, ),
-        stage_blocks=(4, 6, 3),
-        conv1_stride_s=1,
-        pool1_stride_s=1,
-        inflate=(0, 1, 1),
-        spatial_strides=(2, 2, 2),
-        temporal_strides=(1, 1, 2),
-        dilations=(1, 1, 1)),
+        pretrained='torchvision://resnet50',
+        norm_eval=False),
     cls_head=dict(
-        type='I3DHead',
-        in_channels=512,
+        type='TSNHead',
+        in_channels=2048,
         num_classes=5,
         spatial_type='avg',
-        dropout_ratio=0.5),
+        consensus=dict(type='AvgConsensus',dim=1),
+        init_std = 0.01,
+        dropout_ratio=0.4),
     train_cfg=dict(),
     test_cfg=dict(average_clips='prob'))
 
@@ -30,7 +22,7 @@ ann_file_val = '/mlsun/nfs_shared/cctv/Trimmed_Video_Pose_based_Action_Recogniti
 left_kp = [1, 3, 5, 7, 9, 11, 13, 15]
 right_kp = [2, 4, 6, 8, 10, 12, 14, 16]
 train_pipeline = [
-    dict(type='UniformSampleFrames', clip_len=32),
+    dict(type='UniformSampleFrames', clip_len=16),
     dict(type='PoseDecode'),
     dict(type='PoseCompact', hw_ratio=1., allow_imgpad=True),
     dict(type='Resize', scale=(-1, 64)),
@@ -48,7 +40,7 @@ train_pipeline = [
     dict(type='ToTensor', keys=['imgs', 'label'])
 ]
 val_pipeline = [
-    dict(type='UniformSampleFrames', clip_len=32, num_clips=1, test_mode=True),
+    dict(type='UniformSampleFrames', clip_len=16, num_clips=1, test_mode=True),
     dict(type='PoseDecode'),
     dict(type='PoseCompact', hw_ratio=1., allow_imgpad=True),
     dict(type='Resize', scale=(-1, 64)),
@@ -65,7 +57,7 @@ val_pipeline = [
 ]
 test_pipeline = [
     dict(
-        type='UniformSampleFrames', clip_len=32, num_clips=10, test_mode=True),
+        type='UniformSampleFrames', clip_len=16, num_clips=10, test_mode=True),
     dict(type='PoseDecode'),
     dict(type='PoseCompact', hw_ratio=1., allow_imgpad=True),
     dict(type='Resize', scale=(-1, 64)),
