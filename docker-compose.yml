@@ -1,0 +1,24 @@
+version: '2.3'
+
+services:
+  model:
+    container_name: mmaction2
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+    runtime: nvidia
+    restart: always
+    ipc: "host"
+    env_file:
+      - "docker/main.env"
+    volumes:
+      - /DATA:/DATA
+    ports:
+      - "3022:22"
+      - "3000:8000"
+      - "3001:8001"
+      - "3888:8888"
+    stdin_open: true
+    tty: true
+    environment:
+      TZ: Asia/Seoul
